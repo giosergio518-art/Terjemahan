@@ -1,9 +1,11 @@
 {
   "name": "LinguaFlow Translator",
   "short_name": "LinguaFlow",
+  "description": "Aplikasi penerjemah bahasa asing dan bahasa daerah Nusantara.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0b1120",
   "theme_color": "#4f46e5",
   "icons": [
