@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -642,10 +643,10 @@
 <div id="lf-install-modal" class="lf-modal-overlay">
   <div class="lf-modal">
     <h3>📲 Pasang LinguaFlow ke HP</h3>
-    <p>Untuk memasang aplikasi ini ke layar utama HP seperti aplikasi asli:</p>
+    <p>Untuk memasang aplikasi ini ke layar utama HP:</p>
     <ul>
-      <li><strong>Android (Chrome):</strong> Ketuk ikon titik tiga <strong>⋮</strong> di pojok kanan atas browser, lalu pilih <strong>"Install aplikasi"</strong> atau <strong>"Tambahkan ke Layar utama"</strong>.</li>
-      <li><strong>iPhone / iPad (Safari):</strong> Ketuk ikon <strong>Bagikan (Share)</strong> di bagian bawah, lalu pilih <strong>"Tambah ke Layar Utama"</strong>.</li>
+      <li><strong>Android (Chrome):</strong> Ketuk ikon titik tiga <strong>⋮</strong> di kanan atas browser, lalu pilih <strong>"Install aplikasi"</strong> atau <strong>"Tambahkan ke Layar utama"</strong>.</li>
+      <li><strong>iPhone (Safari):</strong> Ketuk ikon <strong>Bagikan (Share)</strong> di bawah, lalu pilih <strong>"Tambah ke Layar Utama"</strong>.</li>
     </ul>
     <div style="display:flex; gap:8px; justify-content:flex-end;">
       <button type="button" id="lf-close-modal" class="lf-translate-btn">Mengerti</button>
@@ -672,14 +673,12 @@
   let currentTranslation = '';
   let deferredPrompt = null;
 
-  // 1. Daftarkan Service Worker agar PWA bisa diinstall dari GitHub Pages
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     });
   }
 
-  // 2. Tangkap Prompt Install Aplikasi Otomatis di Chrome HP
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -705,7 +704,6 @@
     installModal.style.display = 'none';
   });
 
-  // 3. Mode Gelap / Terang
   function applyTheme(dark) {
     if (dark) {
       wrapper.classList.add('lf-dark');
@@ -732,7 +730,6 @@
     }, 2600);
   }
 
-  // 4. Mesin Terjemahan Dual-API dengan Validasi Respon
   async function translateText() {
     const text = inputEl.value.trim();
     if (!text) {
@@ -753,7 +750,6 @@
     statusText.textContent = 'Menerjemahkan...';
     outputEl.innerHTML = '<span class="lf-placeholder">Sedang menerjemahkan...</span>';
 
-    // Engine 1: Google Translate GTX (Mendukung lengkap bahasa daerah & asing)
     try {
       const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(sl)}&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(text)}`;
       const res = await fetch(url);
@@ -769,11 +765,8 @@
           }
         }
       }
-    } catch (e) {
-      // Lanjut ke Engine 2 jika terblokir
-    }
+    } catch (e) {}
 
-    // Engine 2: MyMemory API (Cadangan)
     try {
       const srcCode = sl === 'auto' ? 'id' : sl;
       const pair = `${srcCode}|${tl}`;
@@ -789,10 +782,10 @@
           return;
         }
       }
-      throw new Error('Bahasa belum didukung di server cadangan');
+      throw new Error();
     } catch (err2) {
-      statusText.textContent = 'Perlu Koneksi / Ganti Bahasa';
-      outputEl.innerHTML = '<span class="lf-placeholder">Pasangan bahasa ini sedang tidak tersedia dari server. Silakan coba pasangan bahasa lain.</span>';
+      statusText.textContent = 'Periksa Koneksi';
+      outputEl.innerHTML = '<span class="lf-placeholder">Pasangan bahasa ini sedang tidak tersedia. Coba bahasa lain.</span>';
     }
   }
 
@@ -836,7 +829,7 @@
 
   function speakText(text, lang) {
     if (!text) return showToast('Tidak ada teks untuk dibacakan');
-    if (!('speechSynthesis' in window)) return showToast('Browser tidak mendukung fitur suara');
+    if (!('speechSynthesis' in window)) return showToast('Browser tidak mendukung suara');
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = lang === 'auto' ? 'id-ID' : lang;
