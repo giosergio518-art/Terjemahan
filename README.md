@@ -1,720 +1,911 @@
-[<!-- ... existing code ... -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#4f46e5" id="meta-theme-color">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="LinguaFlow">
-    <title>LinguaFlow - Penerjemah Bahasa Asing & Daerah</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-<!-- ... existing code ... -->
-    <script>
-        // Terapkan tema sebelum halaman dirender untuk menghindari kedipan (FOUC)
-        if (localStorage.getItem('linguaflow_theme') === 'dark' || 
-           (!('linguaflow_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LinguaFlow">
+  <title>LinguaFlow — Penerjemah Bahasa Asing & Daerah</title>
+  <style>
+    /* Reset & Isolasi Penuh agar tidak bentrok dengan CSS tema/CMS luar */
+    #lf-wrapper, #lf-wrapper * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
 
-    <!-- CSS Variabel & Perlindungan Kontras Tinggi (Mencegah bentrok dengan CSS bawaan CMS/tema) -->
-    <style>
-        :root {
-            --lf-bg-body: #f8fafc;
-            --lf-bg-card: #ffffff;
-            --lf-bg-subcard: #f1f5f9;
-            --lf-bg-input: #ffffff;
-            --lf-bg-output: #f8fafc;
-            --lf-text-main: #0f172a;
-            --lf-text-secondary: #334155;
-            --lf-text-muted: #64748b;
-            --lf-placeholder: #94a3b8;
-            --lf-border: #cbd5e1;
-        }
+    #lf-wrapper {
+      --lf-bg: #f1f5f9;
+      --lf-surface: #ffffff;
+      --lf-surface-alt: #f8fafc;
+      --lf-border: #cbd5e1;
+      --lf-text: #0f172a;
+      --lf-text-muted: #475569;
+      --lf-primary: #4f46e5;
+      --lf-primary-hover: #4338ca;
+      --lf-badge-bg: #dcfce7;
+      --lf-badge-text: #15803d;
+      --lf-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
 
-        html.dark {
-            --lf-bg-body: #020617;
-            --lf-bg-card: #0f172a;
-            --lf-bg-subcard: #1e293b;
-            --lf-bg-input: #0f172a;
-            --lf-bg-output: #131c31;
-            --lf-text-main: #f8fafc;
-            --lf-text-secondary: #e2e8f0;
-            --lf-text-muted: #94a3b8;
-            --lf-placeholder: #64748b;
-            --lf-border: #334155;
-        }
+      background-color: var(--lf-bg);
+      color: var(--lf-text);
+      min-height: 100vh;
+      width: 100%;
+      padding: 20px 16px 48px;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
 
-        body.lf-app {
-            background-color: var(--lf-bg-body) !important;
-            color: var(--lf-text-main) !important;
-        }
+    /* Mode Gelap (Dark Mode) dengan kontras tinggi */
+    #lf-wrapper.lf-dark {
+      --lf-bg: #0b1120;
+      --lf-surface: #1e293b;
+      --lf-surface-alt: #0f172a;
+      --lf-border: #334155;
+      --lf-text: #f8fafc;
+      --lf-text-muted: #94a3b8;
+      --lf-primary: #6366f1;
+      --lf-primary-hover: #818cf8;
+      --lf-badge-bg: rgba(34, 197, 94, 0.15);
+      --lf-badge-text: #4ade80;
+      --lf-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+    }
 
-        .lf-card {
-            background-color: var(--lf-bg-card) !important;
-            border-color: var(--lf-border) !important;
-        }
+    .lf-container {
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
 
-        .lf-subcard {
-            background-color: var(--lf-bg-subcard) !important;
-            border-color: var(--lf-border) !important;
-        }
+    /* Header */
+    .lf-header {
+      background-color: var(--lf-surface);
+      border: 1px solid var(--lf-border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--lf-shadow);
+    }
 
-        .lf-input-box {
-            background-color: var(--lf-bg-input) !important;
-        }
+    .lf-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        .lf-output-box {
-            background-color: var(--lf-bg-output) !important;
-        }
+    .lf-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
 
-        #linguaflow-root textarea.lf-textarea {
-            background-color: transparent !important;
-            color: var(--lf-text-main) !important;
-            caret-color: #6366f1 !important;
-        }
+    .lf-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--lf-text);
+      line-height: 1.2;
+    }
 
-        #linguaflow-root textarea.lf-textarea::placeholder {
-            color: var(--lf-placeholder) !important;
-            opacity: 1 !important;
-        }
+    .lf-subtitle {
+      font-size: 12px;
+      color: var(--lf-text-muted);
+      margin-top: 2px;
+    }
 
-        #linguaflow-root select.lf-select {
-            background-color: var(--lf-bg-card) !important;
-            color: var(--lf-text-main) !important;
-            border-color: var(--lf-border) !important;
-        }
+    .lf-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
-        #linguaflow-root select.lf-select option,
-        #linguaflow-root select.lf-select optgroup {
-            background-color: var(--lf-bg-card) !important;
-            color: var(--lf-text-main) !important;
-        }
-    </style>
+    .lf-btn-install {
+      background-color: var(--lf-primary);
+      color: #ffffff !important;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .lf-btn-install:hover {
+      background-color: var(--lf-primary-hover);
+    }
+
+    .lf-status {
+      background-color: var(--lf-badge-bg);
+      color: var(--lf-badge-text);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lf-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+
+    .lf-theme-btn {
+      background-color: var(--lf-surface-alt);
+      color: var(--lf-text);
+      border: 1px solid var(--lf-border);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Kartu Penerjemah Utama */
+    .lf-card {
+      background-color: var(--lf-surface);
+      border: 1px solid var(--lf-border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--lf-shadow);
+    }
+
+    /* Baris Pemilih Bahasa */
+    .lf-lang-bar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background-color: var(--lf-surface-alt);
+      border-bottom: 1px solid var(--lf-border);
+    }
+
+    .lf-select {
+      width: 100%;
+      background-color: var(--lf-surface);
+      color: var(--lf-text) !important;
+      border: 1px solid var(--lf-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .lf-select:focus {
+      border-color: var(--lf-primary);
+    }
+
+    .lf-swap-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background-color: var(--lf-surface);
+      color: var(--lf-text);
+      border: 1px solid var(--lf-border);
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .lf-swap-btn:hover {
+      border-color: var(--lf-primary);
+      transform: rotate(180deg);
+    }
+
+    /* Area Input & Output (2 Kolom di Desktop, 1 Kolom di HP) */
+    .lf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .lf-pane {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      min-height: 250px;
+    }
+
+    .lf-pane-left {
+      background-color: var(--lf-surface);
+      border-right: 1px solid var(--lf-border);
+    }
+
+    .lf-pane-right {
+      background-color: var(--lf-surface-alt);
+    }
+
+    .lf-textarea-wrap {
+      position: relative;
+      flex: 1;
+      display: flex;
+    }
+
+    .lf-textarea {
+      width: 100%;
+      min-height: 165px;
+      resize: vertical;
+      border: none;
+      outline: none;
+      background: transparent !important;
+      color: var(--lf-text) !important;
+      font-size: 17px;
+      line-height: 1.6;
+      padding-right: 32px;
+    }
+
+    .lf-textarea::placeholder {
+      color: var(--lf-text-muted);
+      opacity: 0.75;
+    }
+
+    .lf-clear-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--lf-border);
+      background-color: var(--lf-surface-alt);
+      color: var(--lf-text-muted);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .lf-output-box {
+      flex: 1;
+      min-height: 165px;
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--lf-text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .lf-placeholder {
+      color: var(--lf-text-muted);
+      opacity: 0.75;
+    }
+
+    /* Toolbar Bawah Kolom */
+    .lf-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 12px;
+      margin-top: 12px;
+      border-top: 1px solid var(--lf-border);
+    }
+
+    .lf-tool-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lf-icon-btn {
+      background-color: var(--lf-surface-alt);
+      color: var(--lf-text);
+      border: 1px solid var(--lf-border);
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .lf-icon-btn:hover {
+      border-color: var(--lf-primary);
+    }
+
+    .lf-char-count {
+      font-size: 12px;
+      color: var(--lf-text-muted);
+    }
+
+    .lf-translate-btn {
+      background-color: var(--lf-primary);
+      color: #ffffff !important;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .lf-translate-btn:hover {
+      background-color: var(--lf-primary-hover);
+    }
+
+    /* Bagian Frasa Cepat */
+    .lf-phrases-section {
+      margin-top: 22px;
+      background-color: var(--lf-surface);
+      border: 1px solid var(--lf-border);
+      border-radius: 16px;
+      padding: 16px 18px;
+    }
+
+    .lf-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--lf-text-muted);
+      margin-bottom: 12px;
+    }
+
+    .lf-phrases-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .lf-phrase-chip {
+      background-color: var(--lf-surface-alt);
+      color: var(--lf-text);
+      border: 1px solid var(--lf-border);
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.1s;
+    }
+
+    .lf-phrase-chip:hover {
+      border-color: var(--lf-primary);
+      transform: translateY(-1px);
+    }
+
+    /* Toast Notifikasi & Modal Install */
+    .lf-toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #0f172a;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      z-index: 99999;
+      display: none;
+    }
+
+    .lf-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 99999;
+    }
+
+    .lf-modal {
+      background-color: var(--lf-surface);
+      color: var(--lf-text);
+      border: 1px solid var(--lf-border);
+      border-radius: 16px;
+      max-width: 420px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .lf-modal h3 {
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    .lf-modal p, .lf-modal li {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--lf-text-muted);
+      margin-bottom: 8px;
+    }
+
+    .lf-modal ul {
+      padding-left: 18px;
+      margin-bottom: 14px;
+    }
+
+    /* Responsif Layar HP */
+    @media (max-width: 720px) {
+      .lf-lang-bar {
+        grid-template-columns: 1fr;
+      }
+      .lf-swap-btn {
+        justify-self: center;
+        transform: rotate(90deg);
+      }
+      .lf-grid {
+        grid-template-columns: 1fr;
+      }
+      .lf-pane-left {
+        border-right: none;
+        border-bottom: 1px solid var(--lf-border);
+      }
+    }
+  </style>
 </head>
-<body id="linguaflow-root" class="lf-app font-sans min-h-screen flex flex-col justify-between transition-colors duration-300 selection:bg-indigo-100 selection:text-indigo-700 dark:selection:bg-indigo-900 dark:selection:text-indigo-200">
+<body>
 
-    <!-- Navbar / Header -->
-    <header class="lf-card backdrop-blur-md border-b sticky top-0 z-30 shadow-sm transition-colors duration-300">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-indigo-200 dark:shadow-indigo-950/50">
-                    <i class="fa-solid fa-language text-xl"></i>
-                </div>
-                <div class="truncate">
-                    <h1 class="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-400 dark:to-blue-400 truncate">
-                        LinguaFlow
-                    </h1>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium -mt-0.5 hidden sm:block">Penerjemah Bahasa Asing & Daerah</p>
-                </div>
-            </div>
+<div id="lf-wrapper">
+  <div class="lf-container">
 
-            <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
-                <!-- Tombol Install Aplikasi (PWA) -->
-                <button id="install-app-btn" type="button" title="Pasang Aplikasi ke HP / Perangkat" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-500/20 transition-all active:scale-95">
-                    <i class="fa-solid fa-download"></i>
-                    <span>Install App</span>
-                </button>
-
-                <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Multi-API Aktif
-                </span>
-
-                <!-- Tombol Toggle Mode Gelap / Terang -->
-                <button id="theme-toggle" type="button" title="Ubah Tema Gelap / Terang" aria-label="Toggle Dark Mode" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-slate-700 text-slate-700 dark:text-amber-400 border border-slate-300 dark:border-slate-700 flex items-center justify-center transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-                    <i id="theme-icon-dark" class="fa-solid fa-moon text-base dark:hidden"></i>
-                    <i id="theme-icon-light" class="fa-solid fa-sun text-base hidden dark:inline"></i>
-                </button>
-            </div>
+    <!-- Header -->
+    <header class="lf-header">
+      <div class="lf-brand">
+        <div class="lf-logo">A文</div>
+        <div>
+          <div class="lf-title">LinguaFlow</div>
+          <div class="lf-subtitle">Penerjemah Bahasa Asing &amp; Daerah Nusantara</div>
         </div>
+      </div>
+
+      <div class="lf-actions">
+        <button type="button" id="lf-install-btn" class="lf-btn-install" title="Pasang ke HP / Simpan Offline">
+          📲 Install App
+        </button>
+        <div class="lf-status">
+          <span class="lf-dot"></span>
+          <span id="lf-status-text">API Aktif</span>
+        </div>
+        <button type="button" id="lf-theme-toggle" class="lf-theme-btn" title="Ganti Mode Gelap / Terang">
+          🌙
+        </button>
+      </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        
-        <!-- Kartu Utama Penerjemah -->
-        <div class="lf-card rounded-2xl shadow-xl shadow-slate-200/60 dark:shadow-black/50 border overflow-hidden transition-colors duration-300">
-            
-            <!-- Bar Pemilihan Bahasa -->
-            <div class="lf-subcard border-b p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-                
-                <!-- Bahasa Sumber -->
-                <div class="w-full sm:w-5/12 relative">
-                    <label for="source-lang" class="sr-only">Bahasa Sumber</label>
-                    <div class="relative flex items-center">
-                        <i class="fa-solid fa-globe text-indigo-600 dark:text-indigo-400 absolute left-3.5 pointer-events-none z-10"></i>
-                        <select id="source-lang" class="lf-select w-full pl-10 pr-8 py-2.5 border hover:border-indigo-400 dark:hover:border-indigo-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 rounded-xl text-sm font-semibold transition-all cursor-pointer appearance-none outline-none">
-                            <option value="auto" selected>✨ Deteksi Otomatis</option>
-                            
-                            <optgroup label="🇮🇩 Bahasa Nasional & Daerah Nusantara">
-                                <option value="id">🇮🇩 Bahasa Indonesia</option>
-                                <option value="jv">🏺 Bahasa Jawa (Jawa)</option>
-                                <option value="su">🌿 Bahasa Sunda (Sunda)</option>
-                                <option value="ban">🌺 Bahasa Bali (Bali)</option>
-                                <option value="min">🏠 Bahasa Minangkabau</option>
-                                <option value="bug">⛵ Bahasa Bugis</option>
-                                <option value="mak">⚓ Bahasa Makassar</option>
-                                <option value="btx">🧣 Bahasa Batak Toba</option>
-                                <option value="ace">🕌 Bahasa Aceh</option>
-                                <option value="bjn">💎 Bahasa Banjar</option>
-                                <option value="mad">🐂 Bahasa Madura</option>
-                                <option value="bew">🎭 Bahasa Betawi</option>
-                                <option value="sas">🏝️ Bahasa Sasak (Lombok)</option>
-                            </optgroup>
+    <!-- Kartu Utama -->
+    <main class="lf-card">
+      <!-- Pilihan Bahasa -->
+      <div class="lf-lang-bar">
+        <select id="lf-source-lang" class="lf-select" aria-label="Bahasa Sumber">
+          <option value="auto">🌐 Deteksi Bahasa Otomatis</option>
+          <optgroup label="Bahasa Utama">
+            <option value="id" selected>🇮🇩 Bahasa Indonesia</option>
+            <option value="en">🇬🇧 Bahasa Inggris (English)</option>
+            <option value="ar">🇸🇦 Bahasa Arab (العربية)</option>
+            <option value="ja">🇯🇵 Bahasa Jepang (日本語)</option>
+            <option value="ko">🇰🇷 Bahasa Korea (한국어)</option>
+            <option value="zh-CN">🇨🇳 Mandarin Sederhana (简体中文)</option>
+            <option value="zh-TW">🇹🇼 Mandarin Tradisional (繁體中文)</option>
+          </optgroup>
+          <optgroup label="Bahasa Daerah Nusantara">
+            <option value="jw">🏝️ Bahasa Jawa</option>
+            <option value="su">🌿 Bahasa Sunda</option>
+            <option value="ban">🌺 Bahasa Bali</option>
+            <option value="min">🏠 Bahasa Minangkabau</option>
+            <option value="bug">⛵ Bahasa Bugis</option>
+            <option value="mak">⚓ Bahasa Makassar</option>
+            <option value="bbc">📜 Bahasa Batak Toba</option>
+            <option value="ace">🕌 Bahasa Aceh</option>
+            <option value="bjn">💎 Bahasa Banjar</option>
+            <option value="mad">🐂 Bahasa Madura</option>
+            <option value="bew">🎭 Bahasa Betawi</option>
+            <option value="sas">🌴 Bahasa Sasak</option>
+          </optgroup>
+          <optgroup label="Bahasa Asia & Timur Tengah">
+            <option value="ms">🇲🇾 Bahasa Melayu</option>
+            <option value="th">🇹🇭 Bahasa Thailand</option>
+            <option value="vi">🇻🇳 Bahasa Vietnam</option>
+            <option value="tl">🇵🇭 Bahasa Tagalog (Filipina)</option>
+            <option value="hi">🇮🇳 Bahasa Hindi</option>
+            <option value="ur">🇵🇰 Bahasa Urdu</option>
+            <option value="tr">🇹🇷 Bahasa Turki</option>
+            <option value="fa">🇮🇷 Bahasa Persia</option>
+          </optgroup>
+          <optgroup label="Bahasa Eropa & Dunia">
+            <option value="es">🇪🇸 Bahasa Spanyol</option>
+            <option value="fr">🇫🇷 Bahasa Prancis</option>
+            <option value="de">🇩🇪 Bahasa Jerman</option>
+            <option value="nl">🇳🇱 Bahasa Belanda</option>
+            <option value="ru">🇷🇺 Bahasa Rusia</option>
+            <option value="it">🇮🇹 Bahasa Italia</option>
+            <option value="pt">🇵🇹 Bahasa Portugis</option>
+            <option value="pl">🇵🇱 Bahasa Polandia</option>
+            <option value="sv">🇸🇪 Bahasa Swedia</option>
+            <option value="el">🇬🇷 Bahasa Yunani</option>
+          </optgroup>
+        </select>
 
-                            <optgroup label="🌏 Bahasa Asia">
-<!-- ... existing code ... -->
-                <!-- Tombol Tukar Bahasa (Swap) -->
-                <div class="flex justify-center">
-                    <button id="swap-btn" type="button" title="Tukar Bahasa" class="lf-card w-10 h-10 rounded-full border hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center justify-center shadow-sm transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-800">
-                        <i class="fa-solid fa-right-left text-sm transition-transform duration-300" id="swap-icon"></i>
-                    </button>
-                </div>
+        <button type="button" id="lf-swap-btn" class="lf-swap-btn" title="Tukar Bahasa">⇄</button>
 
-                <!-- Bahasa Target -->
-                <div class="w-full sm:w-5/12 relative">
-                    <label for="target-lang" class="sr-only">Bahasa Target</label>
-                    <div class="relative flex items-center">
-                        <i class="fa-solid fa-flag text-blue-600 dark:text-blue-400 absolute left-3.5 pointer-events-none z-10"></i>
-                        <select id="target-lang" class="lf-select w-full pl-10 pr-8 py-2.5 border hover:border-indigo-400 dark:hover:border-indigo-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 rounded-xl text-sm font-semibold transition-all cursor-pointer appearance-none outline-none">
-                            <optgroup label="🌏 Bahasa Populer">
-                                <option value="en" selected>🇬🇧 Bahasa Inggris</option>
-                                <option value="id">🇮🇩 Bahasa Indonesia</option>
-                                <option value="ja">🇯🇵 Bahasa Jepang</option>
-                                <option value="ko">🇰🇷 Bahasa Korea</option>
-                                <option value="ar">🇸🇦 Bahasa Arab</option>
-                                <option value="zh-CN">🇨🇳 Mandarin (Sederhana)</option>
-                            </optgroup>
+        <select id="lf-target-lang" class="lf-select" aria-label="Bahasa Tujuan">
+          <optgroup label="Bahasa Utama">
+            <option value="en" selected>🇬🇧 Bahasa Inggris (English)</option>
+            <option value="id">🇮🇩 Bahasa Indonesia</option>
+            <option value="ar">🇸🇦 Bahasa Arab (العربية)</option>
+            <option value="ja">🇯🇵 Bahasa Jepang (日本語)</option>
+            <option value="ko">🇰🇷 Bahasa Korea (한국어)</option>
+            <option value="zh-CN">🇨🇳 Mandarin Sederhana (简体中文)</option>
+            <option value="zh-TW">🇹🇼 Mandarin Tradisional (繁體中文)</option>
+          </optgroup>
+          <optgroup label="Bahasa Daerah Nusantara">
+            <option value="jw">🏝️ Bahasa Jawa</option>
+            <option value="su">🌿 Bahasa Sunda</option>
+            <option value="ban">🌺 Bahasa Bali</option>
+            <option value="min">🏠 Bahasa Minangkabau</option>
+            <option value="bug">⛵ Bahasa Bugis</option>
+            <option value="mak">⚓ Bahasa Makassar</option>
+            <option value="bbc">📜 Bahasa Batak Toba</option>
+            <option value="ace">🕌 Bahasa Aceh</option>
+            <option value="bjn">💎 Bahasa Banjar</option>
+            <option value="mad">🐂 Bahasa Madura</option>
+            <option value="bew">🎭 Bahasa Betawi</option>
+            <option value="sas">🌴 Bahasa Sasak</option>
+          </optgroup>
+          <optgroup label="Bahasa Asia & Timur Tengah">
+            <option value="ms">🇲🇾 Bahasa Melayu</option>
+            <option value="th">🇹🇭 Bahasa Thailand</option>
+            <option value="vi">🇻🇳 Bahasa Vietnam</option>
+            <option value="tl">🇵🇭 Bahasa Tagalog (Filipina)</option>
+            <option value="hi">🇮🇳 Bahasa Hindi</option>
+            <option value="ur">🇵🇰 Bahasa Urdu</option>
+            <option value="tr">🇹🇷 Bahasa Turki</option>
+            <option value="fa">🇮🇷 Bahasa Persia</option>
+          </optgroup>
+          <optgroup label="Bahasa Eropa & Dunia">
+            <option value="es">🇪🇸 Bahasa Spanyol</option>
+            <option value="fr">🇫🇷 Bahasa Prancis</option>
+            <option value="de">🇩🇪 Bahasa Jerman</option>
+            <option value="nl">🇳🇱 Bahasa Belanda</option>
+            <option value="ru">🇷🇺 Bahasa Rusia</option>
+            <option value="it">🇮🇹 Bahasa Italia</option>
+            <option value="pt">🇵🇹 Bahasa Portugis</option>
+            <option value="pl">🇵🇱 Bahasa Polandia</option>
+            <option value="sv">🇸🇪 Bahasa Swedia</option>
+            <option value="el">🇬🇷 Bahasa Yunani</option>
+          </optgroup>
+        </select>
+      </div>
 
-                            <optgroup label="🇮🇩 Bahasa Daerah Nusantara">
-                                <option value="jv">🏺 Bahasa Jawa (Jawa)</option>
-                                <option value="su">🌿 Bahasa Sunda (Sunda)</option>
-                                <option value="ban">🌺 Bahasa Bali (Bali)</option>
-                                <option value="min">🏠 Bahasa Minangkabau</option>
-                                <option value="bug">⛵ Bahasa Bugis</option>
-                                <option value="mak">⚓ Bahasa Makassar</option>
-                                <option value="btx">🧣 Bahasa Batak Toba</option>
-                                <option value="ace">🕌 Bahasa Aceh</option>
-                                <option value="bjn">💎 Bahasa Banjar</option>
-                                <option value="mad">🐂 Bahasa Madura</option>
-                                <option value="bew">🎭 Bahasa Betawi</option>
-                                <option value="sas">🏝️ Bahasa Sasak (Lombok)</option>
-                            </optgroup>
-
-                            <optgroup label="🌏 Bahasa Asia Lainnya">
-<!-- ... existing code ... -->
-            <!-- Area Kotak Teks (Grid 2 Kolom pada Desktop, 1 Kolom pada Mobile) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-700">
-                
-                <!-- Kolom Kiri: Input Teks Sumber -->
-                <div class="lf-input-box flex flex-col justify-between p-4 sm:p-6 relative group transition-colors duration-300">
-                    <div class="relative flex-grow">
-                        <textarea 
-                            id="source-text" 
-                            rows="6" 
-                            maxlength="2000"
-                            placeholder="Ketik atau tempel teks bahasa asing maupun daerah di sini..." 
-                            class="lf-textarea w-full h-44 sm:h-56 resize-none border-0 focus:ring-0 p-0 pr-9 text-base sm:text-lg font-normal leading-relaxed outline-none"
-                        ></textarea>
-                        
-                        <!-- Tombol Hapus Teks (Muncul jika ada teks) -->
-                        <button id="clear-btn" type="button" title="Hapus teks" class="hidden absolute top-0 right-0 w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-950 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 flex items-center justify-center transition-colors">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-
-                    <!-- Toolbar Bawah Input -->
-                    <div class="pt-4 mt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                        <div class="flex items-center gap-1.5">
-                            <button id="speak-source-btn" type="button" title="Dengarkan teks sumber" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors focus:outline-none">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                            <button id="copy-source-btn" type="button" title="Salin teks sumber" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors focus:outline-none">
-                                <i class="fa-regular fa-copy"></i>
-                            </button>
-                        </div>
-
-                        <div class="flex items-center gap-3">
-                            <span id="char-count" class="text-xs font-medium text-slate-500 dark:text-slate-400">0 / 2000</span>
-                            <button id="translate-btn" type="button" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white text-sm font-semibold shadow-md shadow-indigo-500/25 hover:shadow-lg transition-all active:scale-95 flex items-center gap-2">
-                                <span>Terjemahkan</span>
-                                <i class="fa-solid fa-arrow-right text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kolom Kanan: Output Hasil Terjemahan -->
-                <div class="lf-output-box flex flex-col justify-between p-4 sm:p-6 relative transition-colors duration-300">
-                    <div class="relative flex-grow">
-                        <!-- Indikator Loading -->
-                        <div id="loading-overlay" class="hidden absolute inset-0 bg-slate-100/85 dark:bg-slate-900/85 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center rounded-xl">
-                            <div class="w-8 h-8 border-4 border-indigo-200 dark:border-indigo-900 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin mb-2"></div>
-                            <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-300">Menerjemahkan...</span>
-                        </div>
-
-                        <textarea 
-                            id="target-text" 
-                            rows="6" 
-                            readonly 
-                            placeholder="Hasil terjemahan akan muncul di sini..." 
-                            class="lf-textarea w-full h-44 sm:h-56 resize-none border-0 focus:ring-0 p-0 text-base sm:text-lg font-normal leading-relaxed outline-none"
-                        ></textarea>
-                    </div>
-
-                    <!-- Toolbar Bawah Output -->
-                    <div class="pt-4 mt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
-                        <div class="flex items-center gap-1.5">
-                            <button id="speak-target-btn" type="button" title="Dengarkan hasil terjemahan" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-100/70 dark:hover:bg-slate-800 transition-colors focus:outline-none">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                            <button id="copy-target-btn" type="button" title="Salin hasil terjemahan" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-100/70 dark:hover:bg-slate-800 transition-colors focus:outline-none flex items-center gap-1.5">
-                                <i class="fa-regular fa-copy"></i>
-                                <span class="text-xs font-semibold hidden sm:inline">Salin</span>
-                            </button>
-                        </div>
-
-                        <div id="detected-lang-badge" class="hidden text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-950 px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800">
-                            Terdeteksi: <span id="detected-lang-name">-</span>
-                        </div>
-                    </div>
-                </div>
-
+      <!-- Area Teks -->
+      <div class="lf-grid">
+        <!-- Kolom Kiri (Input) -->
+        <div class="lf-pane lf-pane-left">
+          <div class="lf-textarea-wrap">
+            <textarea id="lf-input" class="lf-textarea" maxlength="2000" placeholder="Ketik atau tempel teks di sini..."></textarea>
+            <button type="button" id="lf-clear-btn" class="lf-clear-btn" title="Hapus teks">✕</button>
+          </div>
+          <div class="lf-toolbar">
+            <div class="lf-tool-group">
+              <button type="button" id="lf-speak-src" class="lf-icon-btn" title="Dengarkan suara">🔊</button>
+              <button type="button" id="lf-copy-src" class="lf-icon-btn" title="Salin teks asal">📋</button>
             </div>
+            <div class="lf-tool-group">
+              <span id="lf-char-count" class="lf-char-count">0 / 2000</span>
+              <button type="button" id="lf-translate-btn" class="lf-translate-btn">Terjemahkan →</button>
+            </div>
+          </div>
         </div>
 
-        <!-- Frasa Cepat / Contoh Penggunaan (Asing & Daerah) -->
-        <div class="mt-8">
-            <div class="flex items-center justify-between mb-3 px-1">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Coba Frasa Populer & Daerah</h2>
-                <span class="text-[11px] text-slate-500 dark:text-slate-400">Klik untuk langsung menerjemahkan</span>
+        <!-- Kolom Kanan (Hasil Terjemahan) -->
+        <div class="lf-pane lf-pane-right">
+          <div id="lf-output" class="lf-output-box">
+            <span class="lf-placeholder">Hasil terjemahan akan muncul di sini...</span>
+          </div>
+          <div class="lf-toolbar">
+            <div class="lf-tool-group">
+              <button type="button" id="lf-speak-tgt" class="lf-icon-btn" title="Dengarkan hasil terjemahan">🔊 Suara</button>
+              <button type="button" id="lf-copy-tgt" class="lf-icon-btn" title="Salin hasil terjemahan">📋 Salin</button>
             </div>
-            <div class="flex flex-wrap gap-2">
-                <button type="button" data-source="id" data-target="en" class="lf-card quick-phrase px-3.5 py-2 rounded-xl border hover:border-indigo-400 dark:hover:border-indigo-500 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 transition-all shadow-sm">
-                    🇮🇩 Halo, apa kabar hari ini?
-                </button>
-                <button type="button" data-source="su" data-target="id" class="lf-card quick-phrase px-3.5 py-2 rounded-xl border hover:border-indigo-400 dark:hover:border-indigo-500 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 transition-all shadow-sm">
-                    🌿 Kumaha damang? Abdi bade angkat ka Bandung.
-                </button>
-                <button type="button" data-source="jv" data-target="id" class="lf-card quick-phrase px-3.5 py-2 rounded-xl border hover:border-indigo-400 dark:hover:border-indigo-500 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 transition-all shadow-sm">
-                    🏺 Sugeng enjang, matur nuwun sanget sampun dibantu.
-                </button>
-                <button type="button" data-source="ban" data-target="id" class="lf-card quick-phrase px-3.5 py-2 rounded-xl border hover:border-indigo-400 dark:hover:border-indigo-500 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 transition-all shadow-sm">
-                    🌺 Om Swastyastu, punapi gatra?
-                </button>
-                <button type="button" data-source="min" data-target="id" class="lf-card quick-phrase px-3.5 py-2 rounded-xl border hover:border-indigo-400 dark:hover:border-indigo-500 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 transition-all shadow-sm">
-                    🏠 Baa kaba dunsanak sadonyo? Tarimo kasih banyak.
-                </button>
-            </div>
+          </div>
         </div>
-
-        <!-- Riwayat Terjemahan Singkat -->
-        <div id="history-section" class="mt-8 hidden">
-            <div class="flex items-center justify-between mb-3 px-1">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Riwayat Terjemahan Terakhir</h2>
-                <button id="clear-history-btn" type="button" class="text-xs font-medium text-rose-600 dark:text-rose-400 hover:underline">Hapus Riwayat</button>
-            </div>
-            <div id="history-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-        </div>
-
+      </div>
     </main>
 
-    <!-- Modal Panduan Install Aplikasi ke HP (PWA) -->
-    <div id="install-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="lf-card max-w-md w-full rounded-2xl border p-6 shadow-2xl relative animate-fade-in">
-            <button id="close-install-modal" type="button" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-500 flex items-center justify-center">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+    <!-- Frasa Populer & Daerah -->
+    <section class="lf-phrases-section">
+      <div class="lf-section-title">Coba Frasa Populer &amp; Bahasa Daerah</div>
+      <div class="lf-phrases-list">
+        <button type="button" class="lf-phrase-chip" data-src="id" data-tgt="en" data-text="Halo, apa kabar hari ini?">🇮🇩 Halo, apa kabar hari ini?</button>
+        <button type="button" class="lf-phrase-chip" data-src="su" data-tgt="id" data-text="Kumaha damang? Abdi bade angkat ka Bandung.">🌿 Kumaha damang? (Sunda)</button>
+        <button type="button" class="lf-phrase-chip" data-src="jw" data-tgt="id" data-text="Sugeng enjang, matur nuwun sanget sampun dibantu.">🏝️ Sugeng enjang (Jawa)</button>
+        <button type="button" class="lf-phrase-chip" data-src="ban" data-tgt="id" data-text="Om Swastyastu, punapi gatra?">🌺 Punapi gatra? (Bali)</button>
+        <button type="button" class="lf-phrase-chip" data-src="min" data-tgt="id" data-text="Baa kaba dunsanak sadonyo?">🏠 Baa kaba dunsanak? (Minang)</button>
+        <button type="button" class="lf-phrase-chip" data-src="id" data-tgt="ja" data-text="Terima kasih banyak atas bantuan Anda.">🇯🇵 Terima kasih → Jepang</button>
+      </div>
+    </section>
 
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md">
-                    <i class="fa-solid fa-mobile-screen-button text-2xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Pasang LinguaFlow di HP</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Gunakan seperti aplikasi native tanpa browser</p>
-                </div>
-            </div>
+  </div>
+</div>
 
-            <div class="space-y-3 text-sm text-slate-700 dark:text-slate-300">
-                <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700">
-                    <p class="font-semibold text-indigo-600 dark:text-indigo-400 mb-1"><i class="fa-brands fa-android mr-1.5"></i>Pengguna Android (Chrome):</p>
-                    <p class="text-xs leading-relaxed">Ketuk ikon menu <strong>titik tiga (⋮)</strong> di pojok kanan atas browser, lalu pilih <strong>"Tambahkan ke Layar utama"</strong> atau <strong>"Install aplikasi"</strong>.</p>
-                </div>
-                <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700">
-                    <p class="font-semibold text-blue-600 dark:text-blue-400 mb-1"><i class="fa-brands fa-apple mr-1.5"></i>Pengguna iPhone / iPad (Safari):</p>
-                    <p class="text-xs leading-relaxed">Ketuk tombol <strong>Bagikan (Share <i class="fa-solid fa-arrow-up-from-bracket"></i>)</strong> di bagian bawah layar, gulir ke bawah, lalu pilih <strong>"Tambah ke Layar Utama" (Add to Home Screen)</strong>.</p>
-                </div>
-            </div>
+<!-- Notifikasi Toast -->
+<div id="lf-toast" class="lf-toast"></div>
 
-            <div class="mt-5 flex justify-end gap-2">
-                <button id="download-html-btn" type="button" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold transition-colors">
-                    <i class="fa-solid fa-file-code mr-1"></i> Simpan File Offline (.html)
-                </button>
-                <button id="ok-install-modal" type="button" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-colors">
-                    Mengerti
-                </button>
-            </div>
-        </div>
+<!-- Modal Panduan Install ke HP -->
+<div id="lf-install-modal" class="lf-modal-overlay">
+  <div class="lf-modal">
+    <h3>📲 Pasang LinguaFlow ke HP</h3>
+    <p>Anda dapat memasang aplikasi ini langsung ke layar utama HP seperti aplikasi native:</p>
+    <ul>
+      <li><strong>Android (Chrome):</strong> Ketuk ikon menu <strong>⋮</strong> di pojok kanan atas browser, lalu pilih <strong>"Tambahkan ke Layar utama"</strong> atau <strong>"Install aplikasi"</strong>.</li>
+      <li><strong>iPhone / iPad (Safari):</strong> Ketuk ikon <strong>Bagikan (Share)</strong> di bagian bawah, lalu pilih <strong>"Tambah ke Layar Utama" (Add to Home Screen)</strong>.</li>
+    </ul>
+    <div style="display:flex; gap:8px; justify-content:flex-end;">
+      <button type="button" id="lf-download-html" class="lf-icon-btn">⬇️ Unduh File HTML</button>
+      <button type="button" id="lf-close-modal" class="lf-translate-btn">Mengerti</button>
     </div>
+  </div>
+</div>
 
-    <!-- Toast Notification (Pengganti Alert) -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 flex items-center gap-3 text-sm font-medium">
-            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
-            <span id="toast-message">Pesan notifikasi</span>
-        </div>
-    </div>
+<script>
+(function () {
+  const wrapper = document.getElementById('lf-wrapper');
+  const themeToggle = document.getElementById('lf-theme-toggle');
+  const sourceLang = document.getElementById('lf-source-lang');
+  const targetLang = document.getElementById('lf-target-lang');
+  const swapBtn = document.getElementById('lf-swap-btn');
+  const inputEl = document.getElementById('lf-input');
+  const outputEl = document.getElementById('lf-output');
+  const clearBtn = document.getElementById('lf-clear-btn');
+  const charCount = document.getElementById('lf-char-count');
+  const translateBtn = document.getElementById('lf-translate-btn');
+  const statusText = document.getElementById('lf-status-text');
+  const toastEl = document.getElementById('lf-toast');
 
-    <!-- Footer -->
-    <footer class="lf-card border-t py-5 mt-8 transition-colors duration-300">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <p>&copy; 2026 LinguaFlow Translator. Mendukung Bahasa Dunia & Bahasa Daerah Nusantara.</p>
-            <p>Tekan <kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded text-slate-700 dark:text-slate-300 font-mono">Ctrl + Enter</kbd> untuk menerjemahkan cepat.</p>
-        </div>
-    </footer>
+  let debounceTimer = null;
+  let currentTranslation = '';
+  let deferredPrompt = null;
 
-    <!-- Logika JavaScript & PWA Setup -->
-    <script>
-        // ==========================================
-        // 1. INISIALISASI PWA (Manifest & Service Worker Dinamis)
-        // ==========================================
-        (function initPWA() {
-            // Ikon aplikasi SVG resolusi tinggi sebagai Data URI
-            const appIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4f46e5"/><stop offset="100%" stop-color="#2563eb"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#g)"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-weight="bold" font-size="220">文A</text></svg>`;
-            const appIconDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(appIconSvg);
+  // --- 1. Mode Gelap / Terang ---
+  function applyTheme(dark) {
+    if (dark) {
+      wrapper.classList.add('lf-dark');
+      themeToggle.textContent = '☀️';
+      localStorage.setItem('lf_theme', 'dark');
+    } else {
+      wrapper.classList.remove('lf-dark');
+      themeToggle.textContent = '🌙';
+      localStorage.setItem('lf_theme', 'light');
+    }
+  }
 
-            // Pasang Apple Touch Icon
-            const appleIcon = document.createElement('link');
-            appleIcon.rel = 'apple-touch-icon';
-            appleIcon.href = appIconDataUri;
-            document.head.appendChild(appleIcon);
+  const savedTheme = localStorage.getItem('lf_theme');
+  applyTheme(savedTheme === 'dark');
 
-            // Buat Web App Manifest secara dinamis via Blob URL
-            const manifestObj = {
-                name: 'LinguaFlow - Penerjemah Bahasa Asing & Daerah',
-                short_name: 'LinguaFlow',
-                description: 'Aplikasi penerjemah cepat bahasa asing dunia dan bahasa daerah Nusantara.',
-                start_url: window.location.href,
-                display: 'standalone',
-                background_color: '#0f172a',
-                theme_color: '#4f46e5',
-                orientation: 'portrait-primary',
-                icons: [
-                    {
-                        src: appIconDataUri,
-                        sizes: '192x192',
-                        type: 'image/svg+xml',
-                        purpose: 'any maskable'
-                    },
-                    {
-                        src: appIconDataUri,
-                        sizes: '512x512',
-                        type: 'image/svg+xml',
-                        purpose: 'any maskable'
-                    }
-                ]
-            };
+  themeToggle.addEventListener('click', () => {
+    applyTheme(!wrapper.classList.contains('lf-dark'));
+  });
 
-            try {
-                const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
-                const manifestUrl = URL.createObjectURL(manifestBlob);
-                const manifestLink = document.createElement('link');
-                manifestLink.rel = 'manifest';
-                manifestLink.href = manifestUrl;
-                document.head.appendChild(manifestLink);
-            } catch (e) {
-                console.warn('Manifest PWA tidak dapat dimuat pada environment ini:', e);
-            }
+  // --- 2. Notifikasi Toast ---
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.style.display = 'block';
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(() => {
+      toastEl.style.display = 'none';
+    }, 2600);
+  }
 
-            // Daftarkan Service Worker inline jika berjalan di protokol HTTPS/localhost
-            if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-                const swCode = `
-                    const CACHE_NAME = 'linguaflow-v1';
-                    self.addEventListener('install', (event) => {
-                        self.skipWaiting();
-                    });
-                    self.addEventListener('activate', (event) => {
-                        event.waitUntil(clients.claim());
-                    });
-                    self.addEventListener('fetch', (event) => {
-                        if (event.request.method !== 'GET') return;
-                        event.respondWith(
-                            fetch(event.request).catch(() => caches.match(event.request))
-                        );
-                    });
-                `;
-                try {
-                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
-                    const swUrl = URL.createObjectURL(swBlob);
-                    navigator.serviceWorker.register(swUrl).catch(() => {});
-                } catch (e) {}
-            }
-        })();
+  // --- 3. Mesin Terjemahan (Dual API: Google GTX + MyMemory Fallback) ---
+  async function translateText() {
+    const text = inputEl.value.trim();
+    if (!text) {
+      currentTranslation = '';
+      outputEl.innerHTML = '<span class="lf-placeholder">Hasil terjemahan akan muncul di sini...</span>';
+      return;
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Referensi Elemen DOM
-            const themeToggleBtn = document.getElementById('theme-toggle');
-            const metaThemeColor = document.getElementById('meta-theme-color');
-            const installAppBtn = document.getElementById('install-app-btn');
-            const installModal = document.getElementById('install-modal');
-            const closeInstallModal = document.getElementById('close-install-modal');
-            const okInstallModal = document.getElementById('ok-install-modal');
-            const downloadHtmlBtn = document.getElementById('download-html-btn');
+    const sl = sourceLang.value;
+    const tl = targetLang.value;
 
-            const sourceLangSelect = document.getElementById('source-lang');
-            const targetLangSelect = document.getElementById('target-lang');
-            const swapBtn = document.getElementById('swap-btn');
-            const swapIcon = document.getElementById('swap-icon');
-            
-            const sourceText = document.getElementById('source-text');
-            const targetText = document.getElementById('target-text');
-            const charCount = document.getElementById('char-count');
-            const clearBtn = document.getElementById('clear-btn');
-            const translateBtn = document.getElementById('translate-btn');
-            const loadingOverlay = document.getElementById('loading-overlay');
-            
-            const speakSourceBtn = document.getElementById('speak-source-btn');
-            const speakTargetBtn = document.getElementById('speak-target-btn');
-            const copySourceBtn = document.getElementById('copy-source-btn');
-            const copyTargetBtn = document.getElementById('copy-target-btn');
-            
-            const detectedLangBadge = document.getElementById('detected-lang-badge');
-            const detectedLangName = document.getElementById('detected-lang-name');
-            const quickPhrases = document.querySelectorAll('.quick-phrase');
-            const historySection = document.getElementById('history-section');
-            const historyList = document.getElementById('history-list');
-            const clearHistoryBtn = document.getElementById('clear-history-btn');
+    if (sl === tl && sl !== 'auto') {
+      currentTranslation = text;
+      outputEl.textContent = text;
+      return;
+    }
 
-            // Sinkronisasi warna status bar HP saat load
-            if (document.documentElement.classList.contains('dark')) {
-                metaThemeColor.setAttribute('content', '#0f172a');
-            }
+    statusText.textContent = 'Menerjemahkan...';
+    outputEl.innerHTML = '<span class="lf-placeholder">Sedang menerjemahkan...</span>';
 
-            // Logika Toggle Mode Gelap / Terang
-            themeToggleBtn.addEventListener('click', () => {
-                const isDark = document.documentElement.classList.toggle('dark');
-                localStorage.setItem('linguaflow_theme', isDark ? 'dark' : 'light');
-                metaThemeColor.setAttribute('content', isDark ? '#0f172a' : '#4f46e5');
-                showToast(isDark ? 'Mode Gelap diaktifkan' : 'Mode Terang diaktifkan', 'info');
-            });
+    try {
+      // Engine 1: Mendukung bahasa asing lengkap + bahasa daerah Nusantara
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(sl)}&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(text)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Primary API error');
+      const data = await res.json();
 
-            // Logika Install PWA ke HP
-            let deferredPrompt = null;
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-            });
+      if (data && Array.isArray(data[0])) {
+        const result = data[0].map(item => item[0]).join('');
+        currentTranslation = result;
+        outputEl.textContent = result;
+        statusText.textContent = 'API Aktif';
+        return;
+      }
+      throw new Error('Format tidak valid');
+    } catch (err) {
+      // Engine 2: Fallback MyMemory API
+      try {
+        const pair = `${sl === 'auto' ? 'id' : sl}|${tl}`;
+        const res2 = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(pair)}`);
+        const data2 = await res2.json();
+        if (data2 && data2.responseData && data2.responseData.translatedText) {
+          currentTranslation = data2.responseData.translatedText;
+          outputEl.textContent = currentTranslation;
+          statusText.textContent = 'API Cadangan Aktif';
+          return;
+        }
+      } catch (err2) {
+        statusText.textContent = 'Koneksi Terputus';
+        outputEl.innerHTML = '<span class="lf-placeholder">Gagal menerjemahkan. Periksa koneksi internet Anda.</span>';
+      }
+    }
+  }
 
-            installAppBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        showToast('LinguaFlow sedang dipasang ke layar utama!');
-                    }
-                    deferredPrompt = null;
-                } else {
-                    // Tampilkan panduan instalasi manual (untuk iOS Safari, Firefox, atau WebView)
-                    installModal.classList.remove('hidden');
-                }
-            });
+  // --- 4. Event Input & Tombol ---
+  inputEl.addEventListener('input', () => {
+    const len = inputEl.value.length;
+    charCount.textContent = `${len} / 2000`;
+    clearBtn.style.display = len > 0 ? 'flex' : 'none';
 
-            closeInstallModal.addEventListener('click', () => installModal.classList.add('hidden'));
-            okInstallModal.addEventListener('click', () => installModal.classList.add('hidden'));
-            installModal.addEventListener('click', (e) => {
-                if (e.target === installModal) installModal.classList.add('hidden');
-            });
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(translateText, 550);
+  });
 
-            // Fitur Download File HTML langsung ke penyimpanan HP
-            downloadHtmlBtn.addEventListener('click', () => {
-                const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-                const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'LinguaFlow-Translator.html';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                installModal.classList.add('hidden');
-                showToast('File aplikasi LinguaFlow.html berhasil diunduh!');
-            });
+  clearBtn.addEventListener('click', () => {
+    inputEl.value = '';
+    charCount.textContent = '0 / 2000';
+    clearBtn.style.display = 'none';
+    currentTranslation = '';
+    outputEl.innerHTML = '<span class="lf-placeholder">Hasil terjemahan akan muncul di sini...</span>';
+    inputEl.focus();
+  });
 
-            // Pemetaan Kode Bahasa ke Nama Bahasa Indonesia
-            const langNames = {
-                'id': 'Indonesia',
-                'jv': 'Jawa',
-                'su': 'Sunda',
-                'ban': 'Bali',
-                'min': 'Minangkabau',
-                'bug': 'Bugis',
-                'mak': 'Makassar',
-                'btx': 'Batak Toba',
-                'ace': 'Aceh',
-                'bjn': 'Banjar',
-                'mad': 'Madura',
-                'bew': 'Betawi',
-                'sas': 'Sasak',
-                'en': 'Inggris',
-                'ja': 'Jepang',
-                'ko': 'Korea',
-                'zh-CN': 'Mandarin (Sederhana)',
-                'zh-TW': 'Mandarin (Tradisional)',
-                'zh': 'Mandarin',
-                'ar': 'Arab',
-                'ms': 'Melayu',
-                'th': 'Thailand',
-                'vi': 'Vietnam',
-                'hi': 'Hindi',
-                'tl': 'Tagalog',
-                'tr': 'Turki',
-                'fa': 'Persia',
-                'es': 'Spanyol',
-                'fr': 'Prancis',
-                'de': 'Jerman',
-                'nl': 'Belanda',
-                'ru': 'Rusia',
-                'it': 'Italia',
-                'pt': 'Portugis',
-                'pl': 'Polandia',
-                'sv': 'Swedia',
-                'el': 'Yunani'
-            };
+  translateBtn.addEventListener('click', translateText);
+  sourceLang.addEventListener('change', translateText);
+  targetLang.addEventListener('change', translateText);
 
-            // Pemetaan Kode Bahasa untuk Web Speech API (TTS)
-            const ttsLocaleMap = {
-                'id': 'id-ID',
-                'jv': 'jv-ID',
-                'su': 'su-ID',
-                'ban': 'id-ID',
-                'min': 'id-ID',
-                'bug': 'id-ID',
-                'mak': 'id-ID',
-                'btx': 'id-ID',
-                'ace': 'id-ID',
-                'bjn': 'id-ID',
-                'mad': 'id-ID',
-                'bew': 'id-ID',
-                'sas': 'id-ID',
-                'en': 'en-US',
-                'ja': 'ja-JP',
-                'ko': 'ko-KR',
-                'zh-CN': 'zh-CN',
-                'zh-TW': 'zh-TW',
-                'ar': 'ar-SA',
-                'ms': 'ms-MY',
-                'th': 'th-TH',
-                'vi': 'vi-VN',
-                'hi': 'hi-IN',
-                'tl': 'fil-PH',
-                'tr': 'tr-TR',
-                'fa': 'fa-IR',
-                'es': 'es-ES',
-                'fr': 'fr-FR',
-                'de': 'de-DE',
-                'nl': 'nl-NL',
-                'ru': 'ru-RU',
-                'it': 'it-IT',
-                'pt': 'pt-PT',
-                'pl': 'pl-PL',
-                'sv': 'sv-SE',
-                'el': 'el-GR'
-            };
+  swapBtn.addEventListener('click', () => {
+    if (sourceLang.value === 'auto') {
+      sourceLang.value = targetLang.value;
+      targetLang.value = 'id';
+    } else {
+      const temp = sourceLang.value;
+      sourceLang.value = targetLang.value;
+      targetLang.value = temp;
+    }
+    if (currentTranslation) {
+      inputEl.value = currentTranslation;
+      charCount.textContent = `${inputEl.value.length} / 2000`;
+      clearBtn.style.display = inputEl.value.length > 0 ? 'flex' : 'none';
+    }
+    translateText();
+  });
 
-            // Manajemen Riwayat Terjemahan
-            let translationHistory = JSON.parse(localStorage.getItem('linguaflow_history') || '[]');
+  // --- 5. Text-to-Speech & Salin ---
+  function speakText(text, lang) {
+    if (!text) return showToast('Tidak ada teks untuk dibacakan');
+    if (!('speechSynthesis' in window)) return showToast('Browser tidak mendukung fitur suara');
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = lang === 'auto' ? 'id-ID' : lang;
+    window.speechSynthesis.speak(utter);
+  }
 
-            function renderHistory() {
-                if (translationHistory.length === 0) {
-                    historySection.classList.add('hidden');
-                    return;
-                }
-                historySection.classList.remove('hidden');
-                historyList.innerHTML = '';
+  document.getElementById('lf-speak-src').addEventListener('click', () => speakText(inputEl.value.trim(), sourceLang.value));
+  document.getElementById('lf-speak-tgt').addEventListener('click', () => speakText(currentTranslation, targetLang.value));
 
-                translationHistory.forEach((item) => {
-                    const card = document.createElement('div');
-                    card.className = 'lf-card p-3.5 rounded-xl border hover:border-indigo-400 dark:hover:border-indigo-500 cursor-pointer transition-all shadow-sm';
-                    card.innerHTML = `
-                        <div class="flex items-center justify-between text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 mb-1">
-                            <span>${langNames[item.sl] || item.sl} &rarr; ${langNames[item.tl] || item.tl}</span>
-                        </div>
-                        <p class="text-xs font-medium text-slate-800 dark:text-slate-100 line-clamp-1">${escapeHtml(item.src)}</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">${escapeHtml(item.tgt)}</p>
-                    `;
-                    card.addEventListener('click', () => {
-                        sourceLangSelect.value = item.sl;
-                        targetLangSelect.value = item.tl;
-                        sourceText.value = item.src;
-                        targetText.value = item.tgt;
-                        charCount.textContent = `${item.src.length} / 2000`;
-                        clearBtn.classList.remove('hidden');
-                    });
-                    historyList.appendChild(card);
-                });
-            }
+  document.getElementById('lf-copy-src').addEventListener('click', () => {
+    if (!inputEl.value.trim()) return;
+    navigator.clipboard.writeText(inputEl.value.trim());
+    showToast('Teks asal disalin!');
+  });
 
-            function saveToHistory(sl, tl, src, tgt) {
-                if (!src || !tgt || src.toLowerCase() === tgt.toLowerCase()) return;
-                // Hindari duplikat berurutan
-                if (translationHistory.length > 0 && translationHistory[0].src === src && translationHistory[0].tl === tl) return;
-                
-                translationHistory.unshift({ sl, tl, src, tgt });
-                if (translationHistory.length > 6) translationHistory.pop();
-                localStorage.setItem('linguaflow_history', JSON.stringify(translationHistory));
-                renderHistory();
-            }
+  document.getElementById('lf-copy-tgt').addEventListener('click', () => {
+    if (!currentTranslation) return;
+    navigator.clipboard.writeText(currentTranslation);
+    showToast('Hasil terjemahan disalin!');
+  });
 
-            function escapeHtml(str) {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
-            }
+  // --- 6. Frasa Populer ---
+  document.querySelectorAll('.lf-phrase-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      sourceLang.value = btn.dataset.src;
+      targetLang.value = btn.dataset.tgt;
+      inputEl.value = btn.dataset.text;
+      charCount.textContent = `${inputEl.value.length} / 2000`;
+      clearBtn.style.display = 'flex';
+      translateText();
+    });
+  });
 
-            clearHistoryBtn.addEventListener('click', () => {
-                translationHistory = [];
-                localStorage.removeItem('linguaflow_history');
-                renderHistory();
-                showToast('Riwayat terjemahan dihapus', 'info');
-            });
+  // --- 7. PWA Manifest Dinamis & Install ke HP ---
+  const manifestData = {
+    name: 'LinguaFlow Translator',
+    short_name: 'LinguaFlow',
+    start_url: '.',
+    display: 'standalone',
+    background_color: '#0b1120',
+    theme_color: '#4f46e5',
+    icons: [{
+      src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%234f46e5"/><text x="50" y="65" font-size="48" font-weight="bold" fill="white" text-anchor="middle" font-family="sans-serif">A文</text></svg>',
+      sizes: '192x192',
+      type: 'image/svg+xml'
+    }]
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+  const manifestLink = document.createElement('link');
+  manifestLink.rel = 'manifest';
+  manifestLink.href = URL.createObjectURL(manifestBlob);
+  document.head.appendChild(manifestLink);
 
-            renderHistory();
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
 
-            let typingTimer;
-            const doneTypingInterval = 750;
-// ... existing code ...
-                    targetText.value = result.translatedText;
+  const installModal = document.getElementById('lf-install-modal');
+  document.getElementById('lf-install-btn').addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+    } else {
+      installModal.style.display = 'flex';
+    }
+  });
 
-                    // Simpan ke riwayat singkat
-                    const effectiveSource = (sourceLang === 'auto' && result.detectedLanguage) ? result.detectedLanguage : sourceLang;
-                    saveToHistory(effectiveSource, targetLang, text, result.translatedText);
+  document.getElementById('lf-close-modal').addEventListener('click', () => {
+    installModal.style.display = 'none';
+  });
 
-                    // Tampilkan badge bahasa terdeteksi jika mode auto aktif
-                    if (sourceLang === 'auto' && result.detectedLanguage) {
-// ... existing code ...
-            quickPhrases.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    // Hapus emoji bendera/ikon di awal teks frasa
-                    const rawText = btn.textContent.trim().replace(/^[^\p{L}\p{N}]+/u, '').trim();
-                    const srcLang = btn.getAttribute('data-source');
-                    const tgtLang = btn.getAttribute('data-target');
+  document.getElementById('lf-download-html').addEventListener('click', () => {
+    const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'LinguaFlow-Translator.html';
+    a.click();
+    showToast('File aplikasi HTML berhasil diunduh!');
+  });
+})();
+</script>
 
-                    if (srcLang) sourceLangSelect.value = srcLang;
-                    if (tgtLang) targetLangSelect.value = tgtLang;
-
-                    sourceText.value = rawText;
-                    charCount.textContent = `${sourceText.value.length} / 2000`;
-                    clearBtn.classList.remove('hidden');
-                    translateText();
-                });
-            });
-        });
-    </script>
 </body>
 </html>
-](https://giosergio518-art.github.io/Terjemahan/)
